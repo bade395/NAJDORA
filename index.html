@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دعوة نجدورة - عيد الفطر</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Framer Motion -->
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f3efe9;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d6cfc7' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            overflow: hidden; /* Prevent scroll on main body during animation */
+        }
+        
+        .font-amiri {
+            font-family: 'Amiri', serif;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .paper-texture {
+            background-color: #fffbf5;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .gold-text {
+            color: #8D6E63;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { motion, AnimatePresence } = window.Motion;
+
+        // Assets
+        const envelopeImage = "https://image.qwenlm.ai/public_source/43583caf-c706-44a8-960f-5315ef07bba8/165999407-7a10-4c94-a7bc-b758cadbcfb7.png";
+        const skylineImage = "https://image.qwenlm.ai/public_source/43583caf-c706-44a8-960f-5315ef07bba8/1b92650c5-3815-4220-add5-59e59138fa1c.png";
+
+        function App() {
+            const [isOpen, setIsOpen] = useState(false);
+
+            const handleOpen = () => {
+                setIsOpen(true);
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+                    
+                    {/* Background Decor */}
+                    <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+                        <div className="absolute top-10 left-10 w-32 h-32 bg-[#8D6E63] rounded-full blur-3xl"></div>
+                        <div className="absolute bottom-10 right-10 w-64 h-64 bg-[#D7CCC8] rounded-full blur-3xl"></div>
+                    </div>
+
+                    <AnimatePresence>
+                        {!isOpen ? (
+                            /* ENVELOPE SCREEN */
+                            <motion.div 
+                                key="envelope"
+                                className="cursor-pointer relative z-50"
+                                onClick={handleOpen}
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 1.5, opacity: 0, filter: "blur(10px)" }}
+                                transition={{ duration: 0.8, ease: "easeInOut" }}
+                            >
+                                <div className="relative group">
+                                    <img 
+                                        src={envelopeImage} 
+                                        alt="Invitation Envelope" 
+                                        className="w-[300px] md:w-[400px] h-auto drop-shadow-2xl transform transition-transform duration-500 group-hover:scale-105"
+                                    />
+                                    <motion.div 
+                                        className="absolute inset-0 flex items-center justify-center"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 1, duration: 1 }}
+                                    >
+                                        <span className="bg-white/80 backdrop-blur-sm px-6 py-2 rounded-full text-[#5D4037] font-bold text-lg shadow-lg border border-[#8D6E63]/30">
+                                            اضغط لفتح الدعوة
+                                        </span>
+                                    </motion.div>
+                                </div>
+                            </motion.div>
+                        ) : (
+                            /* INVITATION CARD */
+                            <motion.div
+                                key="card"
+                                initial={{ y: 100, opacity: 0, scale: 0.9 }}
+                                animate={{ y: 0, opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.8, type: "spring" }}
+                                className="paper-texture w-full max-w-md md:max-w-lg h-[85vh] md:h-[90vh] rounded-2xl overflow-hidden flex flex-col relative border-4 border-[#D7CCC8]"
+                            >
+                                {/* Scrollable Content Area */}
+                                <div className="flex-1 overflow-y-auto scrollbar-hide p-6 md:p-8 relative">
+                                    
+                                    {/* Header */}
+                                    <div className="text-center mb-6 border-b border-[#D7CCC8] pb-4">
+                                        <h1 className="text-4xl font-black text-[#5D4037] tracking-widest font-amiri mb-2">NAJDORA</h1>
+                                        <p className="text-[#8D6E63] text-sm font-medium">نجدورة... قهوتها غير</p>
+                                    </div>
+
+                                    {/* Hero Image */}
+                                    <div className="w-full h-48 mb-6 rounded-xl overflow-hidden relative shadow-inner bg-[#EFEBE9]">
+                                        <img src={skylineImage} alt="Riyadh Skyline" className="w-full h-full object-cover" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-[#5D4037]/20 to-transparent"></div>
+                                    </div>
+
+                                    {/* Main Content */}
+                                    <div className="space-y-6 text-[#4E342E]">
+                                        
+                                        <div className="text-center space-y-2">
+                                            <p className="text-xl font-bold text-[#8D6E63]">حيّاكم الله 🤍</p>
+                                            <p className="text-lg">والعيد بيكون عيدين معنا</p>
+                                            <div className="inline-block bg-[#8D6E63] text-white px-4 py-1 rounded-full text-sm font-bold mt-2">
+                                                دعوة خاصة من نجدورة ☕️🤎
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-[#EFEBE9] p-4 rounded-lg border border-[#D7CCC8] text-center">
+                                            <h2 className="text-2xl font-bold font-amiri text-[#5D4037] mb-2">عيد الفطر</h2>
+                                            <p className="text-sm leading-relaxed">
+                                                يسعدنا حضورك ومشاركتنا العيد في نجدورة،<br/>
+                                                والدعوة لك + شخص عزيز عليك 🫂
+                                            </p>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 gap-4">
+                                            <div className="bg-white p-4 rounded-lg shadow-sm border border-[#D7CCC8]/50">
+                                                <h3 className="font-bold text-[#5D4037] mb-2 flex items-center gap-2">
+                                                    <span>🎁</span> الضيافة تشمل:
+                                                </h3>
+                                                <ul className="text-sm space-y-1 mr-6 list-disc">
+                                                    <li>مشروبين من اختياركم</li>
+                                                    <li>حلا نوع واحد محدد حسب الترند عند الكوفي</li>
+                                                </ul>
+                                            </div>
+
+                                            <div className="flex flex-col gap-4">
+                                                <div className="flex items-center justify-between bg-[#5D4037] text-white p-3 rounded-lg shadow-md">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-xs opacity-80">التاريخ</span>
+                                                        <span className="font-bold">الخميس & الجمعة</span>
+                                                        <span className="text-xs opacity-80">٢٠ + ٢١ مارس</span>
+                                                    </div>
+                                                    <div className="text-2xl">📅</div>
+                                                </div>
+                                                
+                                                <div className="flex items-center justify-between bg-[#8D6E63] text-white p-3 rounded-lg shadow-md">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-xs opacity-80">الوقت</span>
+                                                        <span className="font-bold">8 مساءً - 1 فجرًا</span>
+                                                    </div>
+                                                    <div className="text-2xl">🕔</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Location Button */}
+                                        <a 
+                                            href="https://maps.app.goo.gl/rFCDhPm6cTRUb9uy7?g_st=ic" 
+                                            target="_blank"
+                                            className="block w-full text-center bg-[#3E2723] hover:bg-[#4E342E] text-white font-bold py-3 rounded-xl shadow-lg transition-colors duration-300 flex items-center justify-center gap-2 group"
+                                        >
+                                            <span>📍 الموقع – العليا طريق الملك فهد</span>
+                                            <span className="group-hover:translate-x-1 transition-transform">➜</span>
+                                        </a>
+
+                                        {/* Conditions & Instructions */}
+                                        <div className="space-y-4 pt-4 border-t border-[#D7CCC8]">
+                                            <div className="bg-red-50 p-4 rounded-lg border border-red-100">
+                                                <h3 className="font-bold text-red-800 mb-2 text-sm">🟥 الشروط:</h3>
+                                                <ul className="text-xs space-y-1 text-red-900 mr-4 list-disc">
+                                                    <li>حساب متفاعل</li>
+                                                    <li>تصوير مقطع تيك توك مع منشن</li>
+                                                    <li>كتابة تعليق في قوقل ماب</li>
+                                                    <li>منشن حسابنا</li>
+                                                </ul>
+                                            </div>
+
+                                            <div className="bg-[#EFEBE9] p-4 rounded-lg border border-[#D7CCC8]">
+                                                <h3 className="font-bold text-[#5D4037] mb-2 text-sm">التعليمات:</h3>
+                                                <p className="text-xs text-[#5D4037] leading-relaxed mb-2">
+                                                    تركيز التصوير على الفعالية كاملة، عجلة حظ، توزيعات العيد، الأصناف الجديدة (ماتشا ستروبري، حلا سكوب نجدورة)، الجلسات الداخلية والخارجية، والاطلالة على البرج.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="text-center pt-6 pb-2">
+                                            <p className="font-amiri text-lg text-[#8D6E63] italic">بانتظاركم نحيّيكم على طريقتنا 🤎☕️</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+
