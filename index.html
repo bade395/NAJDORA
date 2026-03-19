@@ -128,7 +128,8 @@
             });
 
             useEffect(() => {
-                const eventDate = new Date('2025-03-20T20:00:00').getTime();
+                // Event date: March 20, 2026 at 8:00 PM
+                const eventDate = new Date('2026-03-20T20:00:00').getTime();
 
                 const timer = setInterval(() => {
                     const now = new Date().getTime();
@@ -136,6 +137,7 @@
 
                     if (distance < 0) {
                         clearInterval(timer);
+                        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
                         return;
                     }
 
@@ -287,6 +289,7 @@
                                         <div className="bg-white rounded-2xl p-4 shadow-lg border border-[#D7CCC8]">
                                             <h3 className="text-center text-[#5D4037] font-bold text-sm mb-2">⏳ العد التنازلي للعيد</h3>
                                             <CountdownTimer />
+                                            <p className="text-center text-xs text-[#8D6E63] mt-2">٢٠ مارس ٢٠٢٦ | ٨ مساءً</p>
                                         </div>
 
                                         {/* Invitation Note */}
