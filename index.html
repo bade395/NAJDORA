@@ -28,7 +28,7 @@
             font-family: 'Tajawal', sans-serif;
             background-color: #f3efe9;
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d6cfc7' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            overflow: hidden; /* Prevent scroll on main body during animation */
+            overflow-x: hidden;
         }
         
         .font-amiri {
@@ -45,12 +45,34 @@
         }
 
         .paper-texture {
-            background-color: #fffbf5;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            background: linear-gradient(135deg, #fffbf5 0%, #f5f0e8 100%);
+            box-shadow: 0 25px 50px -12px rgba(93, 64, 55, 0.25);
         }
 
-        .gold-text {
-            color: #8D6E63;
+        .gold-gradient {
+            background: linear-gradient(135deg, #8D6E63 0%, #6D4C41 50%, #5D4037 100%);
+        }
+
+        .ornament {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20 L20 5 M20 20 L35 20 M20 20 L20 35 M20 20 L5 20' stroke='%238D6E63' stroke-width='1' fill='none' opacity='0.1'/%3E%3Ccircle cx='20' cy='20' r='3' fill='%238D6E63' opacity='0.1'/%3E%3C/svg%3E");
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(141, 110, 99, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(141, 110, 99, 0.6); }
+        }
+
+        .timer-card {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .coffee-steam {
+            animation: steam 3s ease-in-out infinite;
+        }
+
+        @keyframes steam {
+            0%, 100% { opacity: 0.3; transform: translateY(0); }
+            50% { opacity: 0.8; transform: translateY(-10px); }
         }
     </style>
 </head>
@@ -62,24 +84,95 @@
         const { useState, useEffect } = React;
         const { motion, AnimatePresence } = window.Motion;
 
-        // Assets
+        // Brand Assets
+        const logoImage = "https://i.postimg.cc/B6GG15WM/Asset-1.png";
+        const qrImage = "https://i.postimg.cc/d1KKTRM6/Asset-2.png";
+        const skylineImage = "https://i.postimg.cc/pTttnQNk/Asset-3.png";
+        const patternImage = "https://i.postimg.cc/85VVrd8y/Asset-4.png";
         const envelopeImage = "https://image.qwenlm.ai/public_source/43583caf-c706-44a8-960f-5315ef07bba8/165999407-7a10-4c94-a7bc-b758cadbcfb7.png";
-        const skylineImage = "https://image.qwenlm.ai/public_source/43583caf-c706-44a8-960f-5315ef07bba8/1b92650c5-3815-4220-add5-59e59138fa1c.png";
 
+        // Countdown Timer Component
+        function CountdownTimer() {
+            const [timeLeft, setTimeLeft] = useState({
+                days: 0,
+                hours: 0,
+                minutes: 0,
+                seconds: 0
+            });
+
+            useEffect(() => {
+                // Event date: March 20, 2025 at 8:00 PM
+                const eventDate = new Date('2025-03-20T20:00:00').getTime();
+
+                const timer = setInterval(() => {
+                    const now = new Date().getTime();
+                    const distance = eventDate - now;
+
+                    if (distance < 0) {
+                        clearInterval(timer);
+                        return;
+                    }
+
+                    setTimeLeft({
+                        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+                        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+                        seconds: Math.floor((distance % (1000 * 60)) / 1000)
+                    });
+                }, 1000);
+
+                return () => clearInterval(timer);
+            }, []);
+
+            const TimeBox = ({ value, label }) => (
+                <div className="flex flex-col items-center">
+                    <div className="gold-gradient text-white w-14 h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center text-xl md:text-2xl font-bold shadow-lg timer-card">
+                        {String(value).padStart(2, '0')}
+                    </div>
+                    <span className="text-xs md:text-sm text-[#8D6E63] mt-2 font-medium">{label}</span>
+                </div>
+            );
+
+            return (
+                <div className="flex justify-center gap-3 md:gap-4 py-6">
+                    <TimeBox value={timeLeft.days} label="يوم" />
+                    <TimeBox value={timeLeft.hours} label="ساعة" />
+                    <TimeBox value={timeLeft.minutes} label="دقيقة" />
+                    <TimeBox value={timeLeft.seconds} label="ثانية" />
+                </div>
+            );
+        }
+
+        // Main App Component
         function App() {
             const [isOpen, setIsOpen] = useState(false);
+            const [activeSection, setActiveSection] = useState('welcome');
 
             const handleOpen = () => {
                 setIsOpen(true);
             };
 
+            const sections = [
+                { id: 'welcome', label: 'الرئيسية', icon: '🏠' },
+                { id: 'details', label: 'التفاصيل', icon: '📋' },
+                { id: 'location', label: 'الموقع', icon: '📍' },
+                { id: 'conditions', label: 'الشروط', icon: '📝' }
+            ];
+
             return (
-                <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+                <div className="min-h-screen flex items-center justify-center p-2 md:p-4 relative overflow-hidden">
                     
-                    {/* Background Decor */}
-                    <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-                        <div className="absolute top-10 left-10 w-32 h-32 bg-[#8D6E63] rounded-full blur-3xl"></div>
-                        <div className="absolute bottom-10 right-10 w-64 h-64 bg-[#D7CCC8] rounded-full blur-3xl"></div>
+                    {/* Background Pattern */}
+                    <div 
+                        className="absolute inset-0 opacity-5 pointer-events-none"
+                        style={{ backgroundImage: `url(${patternImage})`, backgroundSize: '200px' }}
+                    ></div>
+                    
+                    {/* Decorative Circles */}
+                    <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none overflow-hidden">
+                        <div className="absolute top-10 left-10 w-40 h-40 bg-[#8D6E63] rounded-full blur-3xl"></div>
+                        <div className="absolute bottom-10 right-10 w-60 h-60 bg-[#D7CCC8] rounded-full blur-3xl"></div>
+                        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-[#EFEBE9] rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2"></div>
                     </div>
 
                     <AnimatePresence>
@@ -95,20 +188,33 @@
                                 transition={{ duration: 0.8, ease: "easeInOut" }}
                             >
                                 <div className="relative group">
-                                    <img 
+                                    <motion.img 
                                         src={envelopeImage} 
                                         alt="Invitation Envelope" 
-                                        className="w-[300px] md:w-[400px] h-auto drop-shadow-2xl transform transition-transform duration-500 group-hover:scale-105"
+                                        className="w-[280px] md:w-[380px] h-auto drop-shadow-2xl"
+                                        whileHover={{ scale: 1.05 }}
+                                        transition={{ duration: 0.3 }}
                                     />
                                     <motion.div 
                                         className="absolute inset-0 flex items-center justify-center"
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
-                                        transition={{ delay: 1, duration: 1 }}
+                                        transition={{ delay: 0.5, duration: 1 }}
                                     >
-                                        <span className="bg-white/80 backdrop-blur-sm px-6 py-2 rounded-full text-[#5D4037] font-bold text-lg shadow-lg border border-[#8D6E63]/30">
-                                            اضغط لفتح الدعوة
-                                        </span>
+                                        <motion.div 
+                                            className="bg-white/90 backdrop-blur-sm px-8 py-3 rounded-full text-[#5D4037] font-bold text-lg shadow-xl border-2 border-[#8D6E63]/30"
+                                            whileHover={{ scale: 1.1 }}
+                                        >
+                                            ✨ اضغط لفتح الدعوة
+                                        </motion.div>
+                                    </motion.div>
+                                    {/* Floating Coffee Cup Animation */}
+                                    <motion.div 
+                                        className="absolute -top-4 -right-4 text-4xl coffee-steam"
+                                        animate={{ y: [-5, 5, -5] }}
+                                        transition={{ duration: 3, repeat: Infinity }}
+                                    >
+                                        ☕
                                     </motion.div>
                                 </div>
                             </motion.div>
@@ -119,107 +225,282 @@
                                 initial={{ y: 100, opacity: 0, scale: 0.9 }}
                                 animate={{ y: 0, opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.8, type: "spring" }}
-                                className="paper-texture w-full max-w-md md:max-w-lg h-[85vh] md:h-[90vh] rounded-2xl overflow-hidden flex flex-col relative border-4 border-[#D7CCC8]"
+                                className="paper-texture w-full max-w-md md:max-w-lg h-[90vh] md:h-[850px] rounded-3xl overflow-hidden flex flex-col relative border-4 border-[#D7CCC8] shadow-2xl"
                             >
-                                {/* Scrollable Content Area */}
-                                <div className="flex-1 overflow-y-auto scrollbar-hide p-6 md:p-8 relative">
-                                    
-                                    {/* Header */}
-                                    <div className="text-center mb-6 border-b border-[#D7CCC8] pb-4">
-                                        <h1 className="text-4xl font-black text-[#5D4037] tracking-widest font-amiri mb-2">NAJDORA</h1>
-                                        <p className="text-[#8D6E63] text-sm font-medium">نجدورة... قهوتها غير</p>
-                                    </div>
+                                {/* Header with Logo */}
+                                <div className="gold-gradient py-4 px-6 flex items-center justify-between">
+                                    <img src={logoImage} alt="NAJDORA Logo" className="h-8 md:h-10 object-contain" />
+                                    <span className="text-white/80 text-xs md:text-sm font-amiri">قهوتها غير</span>
+                                </div>
 
-                                    {/* Hero Image */}
-                                    <div className="w-full h-48 mb-6 rounded-xl overflow-hidden relative shadow-inner bg-[#EFEBE9]">
-                                        <img src={skylineImage} alt="Riyadh Skyline" className="w-full h-full object-cover" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#5D4037]/20 to-transparent"></div>
-                                    </div>
-
-                                    {/* Main Content */}
-                                    <div className="space-y-6 text-[#4E342E]">
-                                        
-                                        <div className="text-center space-y-2">
-                                            <p className="text-xl font-bold text-[#8D6E63]">حيّاكم الله 🤍</p>
-                                            <p className="text-lg">والعيد بيكون عيدين معنا</p>
-                                            <div className="inline-block bg-[#8D6E63] text-white px-4 py-1 rounded-full text-sm font-bold mt-2">
-                                                دعوة خاصة من نجدورة ☕️🤎
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-[#EFEBE9] p-4 rounded-lg border border-[#D7CCC8] text-center">
-                                            <h2 className="text-2xl font-bold font-amiri text-[#5D4037] mb-2">عيد الفطر</h2>
-                                            <p className="text-sm leading-relaxed">
-                                                يسعدنا حضورك ومشاركتنا العيد في نجدورة،<br/>
-                                                والدعوة لك + شخص عزيز عليك 🫂
-                                            </p>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 gap-4">
-                                            <div className="bg-white p-4 rounded-lg shadow-sm border border-[#D7CCC8]/50">
-                                                <h3 className="font-bold text-[#5D4037] mb-2 flex items-center gap-2">
-                                                    <span>🎁</span> الضيافة تشمل:
-                                                </h3>
-                                                <ul className="text-sm space-y-1 mr-6 list-disc">
-                                                    <li>مشروبين من اختياركم</li>
-                                                    <li>حلا نوع واحد محدد حسب الترند عند الكوفي</li>
-                                                </ul>
-                                            </div>
-
-                                            <div className="flex flex-col gap-4">
-                                                <div className="flex items-center justify-between bg-[#5D4037] text-white p-3 rounded-lg shadow-md">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-xs opacity-80">التاريخ</span>
-                                                        <span className="font-bold">الخميس & الجمعة</span>
-                                                        <span className="text-xs opacity-80">٢٠ + ٢١ مارس</span>
-                                                    </div>
-                                                    <div className="text-2xl">📅</div>
-                                                </div>
-                                                
-                                                <div className="flex items-center justify-between bg-[#8D6E63] text-white p-3 rounded-lg shadow-md">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-xs opacity-80">الوقت</span>
-                                                        <span className="font-bold">8 مساءً - 1 فجرًا</span>
-                                                    </div>
-                                                    <div className="text-2xl">🕔</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Location Button */}
-                                        <a 
-                                            href="https://maps.app.goo.gl/rFCDhPm6cTRUb9uy7?g_st=ic" 
-                                            target="_blank"
-                                            className="block w-full text-center bg-[#3E2723] hover:bg-[#4E342E] text-white font-bold py-3 rounded-xl shadow-lg transition-colors duration-300 flex items-center justify-center gap-2 group"
+                                {/* Navigation Tabs */}
+                                <div className="flex bg-[#EFEBE9] border-b border-[#D7CCC8]">
+                                    {sections.map((section) => (
+                                        <button
+                                            key={section.id}
+                                            onClick={() => setActiveSection(section.id)}
+                                            className={`flex-1 py-3 text-xs md:text-sm font-medium transition-all duration-300 ${
+                                                activeSection === section.id 
+                                                    ? 'bg-white text-[#5D4037] border-b-2 border-[#8D6E63]' 
+                                                    : 'text-[#8D6E63] hover:bg-[#D7CCC8]/30'
+                                            }`}
                                         >
-                                            <span>📍 الموقع – العليا طريق الملك فهد</span>
-                                            <span className="group-hover:translate-x-1 transition-transform">➜</span>
-                                        </a>
+                                            <span className="mr-1">{section.icon}</span>
+                                            <span className="hidden md:inline">{section.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
 
-                                        {/* Conditions & Instructions */}
-                                        <div className="space-y-4 pt-4 border-t border-[#D7CCC8]">
-                                            <div className="bg-red-50 p-4 rounded-lg border border-red-100">
-                                                <h3 className="font-bold text-red-800 mb-2 text-sm">🟥 الشروط:</h3>
-                                                <ul className="text-xs space-y-1 text-red-900 mr-4 list-disc">
-                                                    <li>حساب متفاعل</li>
-                                                    <li>تصوير مقطع تيك توك مع منشن</li>
-                                                    <li>كتابة تعليق في قوقل ماب</li>
-                                                    <li>منشن حسابنا</li>
-                                                </ul>
+                                {/* Scrollable Content */}
+                                <div className="flex-1 overflow-y-auto scrollbar-hide relative ornament">
+                                    
+                                    {/* Welcome Section */}
+                                    {activeSection === 'welcome' && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            className="p-6 space-y-6"
+                                        >
+                                            {/* Hero Image */}
+                                            <div className="relative rounded-2xl overflow-hidden shadow-lg">
+                                                <img src={skylineImage} alt="Riyadh Skyline" className="w-full h-40 object-cover" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-[#5D4037]/80 to-transparent"></div>
+                                                <div className="absolute bottom-4 right-4 text-white">
+                                                    <h1 className="text-2xl font-bold font-amiri">عيد الفطر</h1>
+                                                    <p className="text-sm opacity-90">مع نجدورة</p>
+                                                </div>
                                             </div>
 
-                                            <div className="bg-[#EFEBE9] p-4 rounded-lg border border-[#D7CCC8]">
-                                                <h3 className="font-bold text-[#5D4037] mb-2 text-sm">التعليمات:</h3>
-                                                <p className="text-xs text-[#5D4037] leading-relaxed mb-2">
-                                                    تركيز التصوير على الفعالية كاملة، عجلة حظ، توزيعات العيد، الأصناف الجديدة (ماتشا ستروبري، حلا سكوب نجدورة)، الجلسات الداخلية والخارجية، والاطلالة على البرج.
+                                            {/* Welcome Message */}
+                                            <div className="text-center space-y-3">
+                                                <motion.div 
+                                                    initial={{ scale: 0 }}
+                                                    animate={{ scale: 1 }}
+                                                    transition={{ delay: 0.3, type: "spring" }}
+                                                    className="inline-block"
+                                                >
+                                                    <span className="text-5xl">🤍</span>
+                                                </motion.div>
+                                                <h2 className="text-xl font-bold text-[#5D4037]">حيّاكم الله</h2>
+                                                <p className="text-[#8D6E63]">والعيد بيكون عيدين معنا</p>
+                                                <div className="inline-block gold-gradient text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                                                    دعوة خاصة من نجدورة ☕️🤎
+                                                </div>
+                                            </div>
+
+                                            {/* Countdown Timer */}
+                                            <div className="bg-white rounded-2xl p-4 shadow-lg border border-[#D7CCC8]">
+                                                <h3 className="text-center text-[#5D4037] font-bold mb-3">⏳ العد التنازلي للعيد</h3>
+                                                <CountdownTimer />
+                                            </div>
+
+                                            {/* Invitation Note */}
+                                            <div className="bg-[#EFEBE9] p-4 rounded-xl border border-[#D7CCC8] text-center">
+                                                <p className="text-[#5D4037] leading-relaxed">
+                                                    يسعدنا حضورك ومشاركتنا العيد في نجدورة<br/>
+                                                    <span className="font-bold text-[#8D6E63]">والدعوة لك + شخص عزيز عليك 🫂</span>
                                                 </p>
                                             </div>
-                                        </div>
+                                        </motion.div>
+                                    )}
 
-                                        <div className="text-center pt-6 pb-2">
-                                            <p className="font-amiri text-lg text-[#8D6E63] italic">بانتظاركم نحيّيكم على طريقتنا 🤎☕️</p>
-                                        </div>
-                                    </div>
+                                    {/* Details Section */}
+                                    {activeSection === 'details' && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            className="p-6 space-y-5"
+                                        >
+                                            <h2 className="text-xl font-bold text-[#5D4037] text-center mb-4 flex items-center justify-center gap-2">
+                                                <span>🎁</span> تفاصيل الضيافة
+                                            </h2>
+
+                                            {/* Hospitality Cards */}
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="bg-gradient-to-br from-[#8D6E63] to-[#6D4C41] text-white p-4 rounded-xl shadow-lg text-center">
+                                                    <span className="text-3xl mb-2 block">☕</span>
+                                                    <p className="font-bold text-sm">مشروبين</p>
+                                                    <p className="text-xs opacity-80">من اختياركم</p>
+                                                </div>
+                                                <div className="bg-gradient-to-br from-[#D7CCC8] to-[#BCAAA4] text-[#5D4037] p-4 rounded-xl shadow-lg text-center">
+                                                    <span className="text-3xl mb-2 block"></span>
+                                                    <p className="font-bold text-sm">حلا مميز</p>
+                                                    <p className="text-xs opacity-80">حسب الترند</p>
+                                                </div>
+                                            </div>
+
+                                            {/* New Items */}
+                                            <div className="bg-white rounded-xl p-4 shadow-md border border-[#D7CCC8]">
+                                                <h3 className="font-bold text-[#5D4037] mb-3 flex items-center gap-2">
+                                                    <span>✨</span> الأصناف الجديدة
+                                                </h3>
+                                                <div className="space-y-3">
+                                                    <div className="flex items-center gap-3 bg-[#F8E8E8] p-3 rounded-lg">
+                                                        <span className="text-2xl">🍓</span>
+                                                        <div>
+                                                            <p className="font-bold text-[#5D4037] text-sm">ماتشا ستروبري</p>
+                                                            <p className="text-xs text-[#8D6E63]">مشروب جديد</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-3 bg-[#FFF8E1] p-3 rounded-lg">
+                                                        <span className="text-2xl">🍨</span>
+                                                        <div>
+                                                            <p className="font-bold text-[#5D4037] text-sm">حلا سكوب نجدورة</p>
+                                                            <p className="text-xs text-[#8D6E63]">خاص بنا</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Date & Time */}
+                                            <div className="space-y-3">
+                                                <div className="gold-gradient text-white p-4 rounded-xl shadow-lg flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-xs opacity-80">الأيام</p>
+                                                        <p className="font-bold">الخميس & الجمعة</p>
+                                                        <p className="text-xs opacity-80">٢٠ + ٢١ مارس</p>
+                                                    </div>
+                                                    <span className="text-3xl">📅</span>
+                                                </div>
+                                                
+                                                <div className="bg-[#8D6E63] text-white p-4 rounded-xl shadow-lg flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-xs opacity-80">الوقت</p>
+                                                        <p className="font-bold">8 مساءً - 1 فجرًا</p>
+                                                    </div>
+                                                    <span className="text-3xl">🕔</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Activities */}
+                                            <div className="bg-[#EFEBE9] p-4 rounded-xl border border-[#D7CCC8]">
+                                                <h3 className="font-bold text-[#5D4037] mb-3">🎡 الفعاليات</h3>
+                                                <div className="grid grid-cols-2 gap-2 text-xs text-[#5D4037]">
+                                                    <div className="flex items-center gap-2"><span>🎡</span> عجلة الحظ</div>
+                                                    <div className="flex items-center gap-2"><span>🎁</span> توزيعات العيد</div>
+                                                    <div className="flex items-center gap-2"><span>🪑</span> جلسات داخلية</div>
+                                                    <div className="flex items-center gap-2"><span>🌴</span> جلسات خارجية</div>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+
+                                    {/* Location Section */}
+                                    {activeSection === 'location' && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            className="p-6 space-y-6"
+                                        >
+                                            <h2 className="text-xl font-bold text-[#5D4037] text-center mb-4">📍 موقعنا</h2>
+                                            
+                                            {/* Map Preview */}
+                                            <div className="bg-[#EFEBE9] rounded-2xl p-4 border border-[#D7CCC8]">
+                                                <div className="aspect-video bg-white rounded-xl flex items-center justify-center mb-4 overflow-hidden">
+                                                    <img 
+                                                        src="https://maps.googleapis.com/maps/api/staticmap?center=24.7136,46.6753&zoom=15&size=400x300&key=YOUR_API_KEY" 
+                                                        alt="Map"
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                            e.target.parentElement.innerHTML = '<span class="text-[#8D6E63]">🗺️ خريطة الموقع</span>';
+                                                        }}
+                                                    />
+                                                </div>
+                                                <p className="text-center text-[#5D4037] font-medium mb-4">
+                                                    العليا - طريق الملك فهد<br/>
+                                                    <span className="text-[#8D6E63]">مقابل برج المملكة</span>
+                                                </p>
+                                                
+                                                <a 
+                                                    href="https://maps.app.goo.gl/rFCDhPm6cTRUb9uy7?g_st=ic" 
+                                                    target="_blank"
+                                                    className="block w-full gold-gradient text-white font-bold py-4 rounded-xl shadow-lg text-center hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                                                >
+                                                    <span>🗺️</span>
+                                                    <span>افتح في خرائط جوجل</span>
+                                                </a>
+                                            </div>
+
+                                            {/* QR Code */}
+                                            <div className="bg-white rounded-2xl p-6 shadow-lg border border-[#D7CCC8] text-center">
+                                                <h3 className="font-bold text-[#5D4037] mb-4">امسح الكود للوصول للموقع</h3>
+                                                <div className="inline-block p-3 bg-white rounded-xl shadow-md border-2 border-[#8D6E63]">
+                                                    <img src={qrImage} alt="QR Code" className="w-32 h-32 object-contain" />
+                                                </div>
+                                            </div>
+
+                                            {/* Landmark */}
+                                            <div className="bg-[#5D4037] text-white p-4 rounded-xl text-center">
+                                                <p className="text-sm">🏢 landmark: برج المملكة</p>
+                                                <p className="text-xs opacity-80 mt-1">أيقونة الرياض تنتظركم</p>
+                                            </div>
+                                        </motion.div>
+                                    )}
+
+                                    {/* Conditions Section */}
+                                    {activeSection === 'conditions' && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            className="p-6 space-y-5"
+                                        >
+                                            <h2 className="text-xl font-bold text-[#5D4037] text-center mb-4">📝 الشروط والتعليمات</h2>
+
+                                            {/* Conditions */}
+                                            <div className="bg-red-50 rounded-xl p-4 border-2 border-red-200">
+                                                <h3 className="font-bold text-red-800 mb-3 flex items-center gap-2">
+                                                    <span>🟥</span> الشروط المطلوبة
+                                                </h3>
+                                                <div className="space-y-3">
+                                                    {[
+                                { icon: '👤', text: 'حساب متفاعل' },
+                                { icon: '', text: 'تصوير مقطع تيك توك مع منشن' },
+                                { icon: '⭐', text: 'كتابة تعليق في قوقل ماب' },
+                                { icon: '🏷️', text: 'منشن حسابنا' }
+                            ].map((item, index) => (
+                                <div key={index} className="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm">
+                                    <span className="text-xl">{item.icon}</span>
+                                    <span className="text-sm text-[#5D4037]">{item.text}</span>
+                                </div>
+                            ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Instructions */}
+                                            <div className="bg-[#EFEBE9] rounded-xl p-4 border border-[#D7CCC8]">
+                                                <h3 className="font-bold text-[#5D4037] mb-3 flex items-center gap-2">
+                                                    <span>📸</span> نقاط التصوير المطلوبة
+                                                </h3>
+                                                <div className="space-y-2 text-xs text-[#5D4037]">
+                                                    {[
+                                                        'الفعالية كاملة وعجلة الحظ',
+                                                        'توزيعات العيد',
+                                                        'الأصناف الجديدة (ماتشا ستروبري، حلا سكوب نجدورة)',
+                                                        'الجلسات الداخلية والخارجية',
+                                                        'الإطلالة على برج المملكة'
+                                                    ].map((item, index) => (
+                                                        <div key={index} className="flex items-start gap-2">
+                                                            <span className="text-[#8D6E63] mt-1">•</span>
+                                                            <span>{item}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Social Media */}
+                                            <div className="bg-gradient-to-r from-[#8D6E63] to-[#6D4C41] text-white p-4 rounded-xl text-center">
+                                                <p className="font-bold mb-2">لا تنسون المنشن!</p>
+                                                <p className="text-sm opacity-90">@najdora</p>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </div>
+
+                                {/* Footer */}
+                                <div className="gold-gradient py-4 px-6 text-center">
+                                    <p className="text-white font-amiri text-sm">بانتظاركم نحيّيكم على طريقتنا 🤎☕️</p>
+                                    <p className="text-white/70 text-xs mt-1">نجدورة… قهوتها غير</p>
                                 </div>
                             </motion.div>
                         )}
